@@ -1,7 +1,7 @@
 package com.samleighton.xquiset.PigRacing;
 
 public enum GameState {
-	IN_LOBBY(true), IN_GAME(false), FINISHED(false), RESETTING(false);
+	IN_LOBBY(true), RACING(false), FINISHED(false), RESETTING(false);
 	
 	private boolean joinable;
 	
