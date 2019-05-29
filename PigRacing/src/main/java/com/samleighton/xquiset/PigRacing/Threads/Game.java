@@ -39,6 +39,5 @@ public class Game extends BukkitRunnable{
 		for(Racer r : racers) {
 			r.getRacer().setScoreboard(gameBoard.getBoard());
 		}
-		
 	}
 }

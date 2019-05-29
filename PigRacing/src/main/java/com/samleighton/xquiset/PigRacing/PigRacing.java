@@ -33,6 +33,10 @@ public class PigRacing extends JavaPlugin{
 		GameState.setState(GameState.IN_LOBBY);
 		registerCommands();
 		registerListeners();
+		getSpawns().reloadConfig();
+		getCheckpoints().reloadConfig();
+		getSpawns().save();
+		getCheckpoints().save();
 		lobbyStart();
 	}
 	
@@ -45,14 +49,12 @@ public class PigRacing extends JavaPlugin{
 		if(gameThread != null) {
 			gameStop();
 		}
+		
+		getSpawns().save();
+		getCheckpoints().save();
 	}
 	
 	public void lobbyStart() {
-		spawns.reloadConfig();
-		checkpoints.reloadConfig();
-		spawns.save();
-		checkpoints.save();
-		
 		lobbyThread = new Lobby(this, LOBBY_TIME).runTaskTimer(this, 10L, 20L);
 	}
 	
@@ -61,9 +63,7 @@ public class PigRacing extends JavaPlugin{
 	}
 	
 	public void gameStart(List<Racer> activeRacers) {
-		if(GameState.getState() == GameState.RACING) {
-			gameThread = new Game(this, activeRacers).runTaskTimer(this, 30L, 20L);
-		}
+		gameThread = new Game(this, activeRacers).runTaskTimer(this, 30L, 20L);
 	}
 	
 	public void gameStop() {
@@ -87,7 +87,18 @@ public class PigRacing extends JavaPlugin{
 		float pitch = Float.valueOf(getSpawns().getConfig().getString("lobby.pitch"));
 		float yaw = Float.valueOf(getSpawns().getConfig().getString("lobby.yaw"));
 		
-		return new Location(w, x, y, z, pitch, yaw);
+		return new Location(w,x,y,z,pitch,yaw);
+	}
+	
+	public Location getStartingLocation() {
+		World w = Bukkit.getServer().getWorld(getSpawns().getConfig().getString("start.world"));
+		double x = getSpawns().getConfig().getDouble("start.x");
+		double y = getSpawns().getConfig().getDouble("start.y");
+		double z = getSpawns().getConfig().getDouble("start.z");
+		float pitch = Float.valueOf(getSpawns().getConfig().getString("start.pitch"));
+		float yaw = Float.valueOf(getSpawns().getConfig().getString("start.yaw"));
+		
+		return new Location(w,x,y,z,pitch,yaw);
 	}
 	
 	public SpawnPoints getSpawns() {

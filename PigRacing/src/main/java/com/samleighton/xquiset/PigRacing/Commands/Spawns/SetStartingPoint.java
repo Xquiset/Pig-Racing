@@ -4,7 +4,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
 import com.samleighton.xquiset.PigRacing.PigRacing;
@@ -41,24 +40,20 @@ public class SetStartingPoint extends PigRacingCommands{
 		return false;
 	}
 	
-	
-	
 	/**
 	 * @param p The player whose location to grab and set the race start at
 	 */
 	public void setStartingSpawn(Player p) {
 
 		Location playerLocal = p.getLocation();
-		FileConfiguration spawns = plugin.getSpawns().getConfig();
 		
-		spawns.set("startingPlace.world", playerLocal.getWorld().getName());
-		spawns.set("startingPlace.x", playerLocal.getX());
-		spawns.set("startingPlace.y", playerLocal.getY());
-		spawns.set("startingPlace.z", playerLocal.getZ());
-		spawns.set("startingPlace.pitch", playerLocal.getPitch());
-		spawns.set("startingPlace.yaw", playerLocal.getYaw());
+		plugin.getSpawns().getConfig().set("start.world", playerLocal.getWorld().getName());
+		plugin.getSpawns().getConfig().set("start.x", playerLocal.getX());
+		plugin.getSpawns().getConfig().set("start.y", playerLocal.getY());
+		plugin.getSpawns().getConfig().set("start.z", playerLocal.getZ());
+		plugin.getSpawns().getConfig().set("start.pitch", playerLocal.getPitch());
+		plugin.getSpawns().getConfig().set("start.yaw", playerLocal.getYaw());
 		
 		plugin.getSpawns().save();
 	}
-
 }
