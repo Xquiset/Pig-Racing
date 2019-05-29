@@ -26,8 +26,10 @@ public class Checkpoints extends Config{
 
 	@Override
 	public FileConfiguration getConfig() {
-		// TODO Auto-generated method stub
-		return null;
+		if(checkpointConfig == null) {
+			reloadConfig();
+		}
+		return checkpointConfig;
 	}
 
 	@Override
@@ -47,8 +49,6 @@ public class Checkpoints extends Config{
 		        checkpointConfig.setDefaults(defConfig);
 		    }
 		} catch (IOException e) {
-			
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -63,7 +63,6 @@ public class Checkpoints extends Config{
 			getConfig().save(checkpointFile);
 		} catch (IOException e) {
 			pl.getLogger().log(Level.SEVERE, ChatColor.DARK_RED + "Could not save config!", e);
-		}
-		
+		}	
 	}
 }

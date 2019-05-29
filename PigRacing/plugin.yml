@@ -1,6 +1,14 @@
 name: PigRacing
-main: com.samleighton.xquiset.pigracers.PigRacing
+main: com.samleighton.xquiset.PigRacing.PigRacing
 version: 0.0.1
 api-version: 1.13
 author: Xquiset
 commands:
+   setstartingpoint:
+      description: Sets the starting point for the race
+      usage: /setstartingpoint
+      aliases: ssp
+   setlobbyspawn:
+      description: Sets the lobby spawn for the race
+      usage: /setlobbyspawn
+      aliases: sls

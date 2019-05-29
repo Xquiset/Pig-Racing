@@ -15,7 +15,6 @@ import com.samleighton.xquiset.PigRacing.Objects.Config;
 
 public class SpawnPoints extends Config{
 	
-	
 	private PigRacing pl;
 	private FileConfiguration spawnPointConfig = null;
 	private File spawnPointFile = null;
@@ -30,7 +29,7 @@ public class SpawnPoints extends Config{
 		if(spawnPointConfig == null) {
 			reloadConfig();
 		}
-		return null;
+		return spawnPointConfig;
 	}
 
 	@Override
@@ -50,7 +49,6 @@ public class SpawnPoints extends Config{
 		        spawnPointConfig.setDefaults(defConfig);
 		    }
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -67,5 +65,4 @@ public class SpawnPoints extends Config{
 			pl.getLogger().log(Level.SEVERE, ChatColor.DARK_RED + "Could not save config!", e);
 		}
 	}
-
 }
