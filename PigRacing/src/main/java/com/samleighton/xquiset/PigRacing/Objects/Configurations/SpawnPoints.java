@@ -1,8 +1,8 @@
 package com.samleighton.xquiset.PigRacing.Objects.Configurations;
 
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.logging.Level;
 
@@ -35,15 +35,16 @@ public class SpawnPoints extends Config{
 	@Override
 	public void reloadConfig() {
 		if (spawnPointFile == null) {
-			spawnPointFile = new File(pl.getDataFolder(), "spawnpoints.yml");
+			spawnPointFile = new File(pl.getDataFolder().getPath(), "spawnpoints.yml");
 	    }
 		
 		spawnPointConfig = YamlConfiguration.loadConfiguration(spawnPointFile);
+		
+		save();
 
 	    // Look for defaults in the jar
-	    Reader defConfigStream;
 		try {
-			defConfigStream = new InputStreamReader(pl.getResource("spawnpoints.yml"), "UTF8");
+			Reader defConfigStream = new FileReader(spawnPointFile);
 			if (defConfigStream != null) {
 		        YamlConfiguration defConfig = YamlConfiguration.loadConfiguration(defConfigStream);
 		        spawnPointConfig.setDefaults(defConfig);

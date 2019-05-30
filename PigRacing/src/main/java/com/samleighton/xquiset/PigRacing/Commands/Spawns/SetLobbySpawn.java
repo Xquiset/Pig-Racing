@@ -4,6 +4,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
 import com.samleighton.xquiset.PigRacing.PigRacing;
@@ -47,12 +48,14 @@ public class SetLobbySpawn extends PigRacingCommands{
 
 		Location playerLocal = p.getLocation();
 		
-		plugin.getSpawns().getConfig().set("lobby.world", playerLocal.getWorld().getName());
-		plugin.getSpawns().getConfig().set("lobby.x", playerLocal.getX());
-		plugin.getSpawns().getConfig().set("lobby.y", playerLocal.getY());
-		plugin.getSpawns().getConfig().set("lobby.z", playerLocal.getZ());
-		plugin.getSpawns().getConfig().set("lobby.pitch", playerLocal.getPitch());
-		plugin.getSpawns().getConfig().set("lobby.yaw", playerLocal.getYaw());
+		FileConfiguration spawns = plugin.getSpawns().getConfig();
+		
+		spawns.set("lobby.world", playerLocal.getWorld().getName());
+		spawns.set("lobby.x", playerLocal.getX());
+		spawns.set("lobby.y", playerLocal.getY());
+		spawns.set("lobby.z", playerLocal.getZ());
+		spawns.set("lobby.pitch", playerLocal.getPitch());
+		spawns.set("lobby.yaw", playerLocal.getYaw());
 		
 		plugin.getSpawns().save();
 	}

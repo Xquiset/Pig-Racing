@@ -1,8 +1,8 @@
 package com.samleighton.xquiset.PigRacing.Objects.Configurations;
 
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.logging.Level;
 
@@ -35,15 +35,16 @@ public class Checkpoints extends Config{
 	@Override
 	public void reloadConfig() {
 		if (checkpointFile == null) {
-			checkpointFile = new File(pl.getDataFolder(), "checkpoints.yml");
+			checkpointFile = new File(pl.getDataFolder().getPath(), "checkpoints.yml");
 	    }
 		
 	    checkpointConfig = YamlConfiguration.loadConfiguration(checkpointFile);
+	    
+	    save();
 
 	    // Look for defaults in the jar
-	    Reader defConfigStream;
 		try {
-			defConfigStream = new InputStreamReader(pl.getResource("checkpoints.yml"), "UTF8");
+			Reader defConfigStream = new FileReader(checkpointFile);
 			if (defConfigStream != null) {
 		        YamlConfiguration defConfig = YamlConfiguration.loadConfiguration(defConfigStream);
 		        checkpointConfig.setDefaults(defConfig);

@@ -29,7 +29,8 @@ public class Lobby extends BukkitRunnable{
 		this.timeLeft = lobbyTime;
 		
 		for(Player p : Bukkit.getOnlinePlayers()) {
-			p.teleport(plugin.getLobbyLocation());
+			if(plugin.getLobbyLocation() != null)
+				p.teleport(plugin.getLobbyLocation());
 		}
 		
 		lobbyBoard.addScore(time, "lobby", boardDisplay, timeLeft);
