@@ -15,10 +15,6 @@ public enum GameState {
 		return this.joinable;
 	}
 	
-	public static boolean isState(GameState state) {
-		return GameState.currentState == state;
-	}
-	
 	public static void setState(GameState state) {
 		currentState = state;
 	}

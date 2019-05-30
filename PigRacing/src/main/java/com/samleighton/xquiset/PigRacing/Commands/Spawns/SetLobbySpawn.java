@@ -1,6 +1,5 @@
 package com.samleighton.xquiset.PigRacing.Commands.Spawns;
 
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -24,7 +23,7 @@ public class SetLobbySpawn extends PigRacingCommands{
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 		if(cmd.getName().equalsIgnoreCase("setlobbyspawn")) {
 			if(!(sender instanceof Player)) {
-				sender.sendMessage(ChatColor.DARK_RED + "This Command is for players only!");
+				ChatUtils.notPlayerError(sender);
 				return false;
 			}
 			

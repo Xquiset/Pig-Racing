@@ -2,6 +2,7 @@ package com.samleighton.xquiset.PigRacing.Utilities;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 public class ChatUtils {
@@ -25,5 +26,9 @@ public class ChatUtils {
 	
 	private static String starter() {
 		return ChatColor.DARK_GRAY + "[" + ChatColor.LIGHT_PURPLE + "Pig Racers" + ChatColor.DARK_GRAY + "] ";
+	}
+	
+	public static void notPlayerError(CommandSender sender) {
+		sender.sendMessage(ChatColor.DARK_RED + "You must be a player to use this command!");
 	}
 }

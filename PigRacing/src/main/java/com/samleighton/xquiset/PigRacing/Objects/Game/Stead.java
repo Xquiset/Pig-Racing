@@ -1,22 +1,21 @@
 package com.samleighton.xquiset.PigRacing.Objects.Game;
 
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Pig;
 import org.bukkit.entity.Player;
 
 public class Stead {
 	
-	private Entity pig;
+	private Pig pig;
 	private Player rider;
 	
 	public Stead(Player p) {
 		this.rider = p;
-		Pig pig = p.getWorld().spawn(p.getLocation(), Pig.class);
+		pig = p.getWorld().spawn(p.getLocation(), Pig.class);
 		pig.setSaddle(true);
 		pig.addPassenger(rider);
 	}
 	
-	public Entity getStead() {
+	public Pig getStead() {
 		return pig;
 	}
 	

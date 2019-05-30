@@ -1,18 +1,27 @@
 package com.samleighton.xquiset.PigRacing;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 
+import com.samleighton.xquiset.PigRacing.Commands.Checkpoints.CreateCheckpoints;
+import com.samleighton.xquiset.PigRacing.Commands.GameControl.EndGame;
+import com.samleighton.xquiset.PigRacing.Commands.GameControl.StartGame;
 import com.samleighton.xquiset.PigRacing.Commands.Spawns.SetLobbySpawn;
 import com.samleighton.xquiset.PigRacing.Commands.Spawns.SetStartingPoint;
 import com.samleighton.xquiset.PigRacing.EventListeners.PlayerJoin;
+import com.samleighton.xquiset.PigRacing.EventListeners.GameSetup.CheckpointPlaceOrBreakEvent;
+import com.samleighton.xquiset.PigRacing.EventListeners.InGame.PlayerQuitGame;
 import com.samleighton.xquiset.PigRacing.Objects.Configurations.Checkpoints;
 import com.samleighton.xquiset.PigRacing.Objects.Configurations.SpawnPoints;
+import com.samleighton.xquiset.PigRacing.Objects.Game.Checkpoint;
 import com.samleighton.xquiset.PigRacing.Objects.Game.Racer;
 import com.samleighton.xquiset.PigRacing.Threads.Game;
 import com.samleighton.xquiset.PigRacing.Threads.Lobby;
@@ -20,12 +29,17 @@ import com.samleighton.xquiset.PigRacing.Threads.Lobby;
 public class PigRacing extends JavaPlugin{
 	
 	private SpawnPoints spawns = new SpawnPoints(this);
-	private Checkpoints checkpoints = new Checkpoints(this);;
-	public final int LOBBY_TIME = 30;
-	public final int PLAYERS_TO_START_MATCH = 1;
+	private Checkpoints checkpoints = new Checkpoints(this);
+	private CheckpointPlaceOrBreakEvent cpCmdAndEvent = new CheckpointPlaceOrBreakEvent(this);
+	private List<Racer> racers = new ArrayList<Racer>();
+	private List<Checkpoint> unsavedCheckpoints = new ArrayList<Checkpoint>();
 	private PluginManager pm = getServer().getPluginManager();
 	private BukkitTask lobbyThread;
 	private BukkitTask gameThread;
+	private Game game;
+	private Lobby lobby;
+	public final int LOBBY_TIME = 60;
+	public final int PLAYERS_TO_START_MATCH = 2;
 	
 	@Override
 	public void onEnable() {
@@ -44,33 +58,57 @@ public class PigRacing extends JavaPlugin{
 		}
 		
 		if(gameThread != null) {
-			gameStop();
+			gameThread.cancel();
 		}
-	}
-	
-	public void lobbyStart() {
-		lobbyThread = new Lobby(this, LOBBY_TIME).runTaskTimer(this, 20L, 20L);
-	}
-	
-	public void lobbyStop() {
-		lobbyThread.cancel();
-	}
-	
-	public void gameStart(List<Racer> activeRacers) {
-		gameThread = new Game(this, activeRacers).runTaskTimer(this, 30L, 20L);
-	}
-	
-	public void gameStop() {
-		gameThread.cancel();
 	}
 	
 	public void registerCommands() {
 		this.getCommand("setstartingpoint").setExecutor(new SetStartingPoint(this));
 		this.getCommand("setlobbyspawn").setExecutor(new SetLobbySpawn(this));
+		this.getCommand("startrace").setExecutor(new StartGame(this));
+		this.getCommand("createcheckpoints").setExecutor(new CreateCheckpoints(this));
+		this.getCommand("endrace").setExecutor(new EndGame(this));
+		this.getCommand("savecp").setExecutor(cpCmdAndEvent);
 	}
 	
 	public void registerListeners() {
 		pm.registerEvents(new PlayerJoin(this), this);
+		pm.registerEvents(new PlayerQuitGame(this), this);
+		pm.registerEvents(cpCmdAndEvent, this);
+	}
+	
+	public void lobbyStart() {
+		lobby = new Lobby(this);
+		lobbyThread = getLobby().runTaskTimer(this, 10L, 20L);
+	}
+	
+	public void lobbyStop() {
+		lobbyThread.cancel();
+		lobby = null;
+		lobbyThread = null;
+	}
+	
+	public void gameStart() {
+		for(Player p : Bukkit.getOnlinePlayers()) {
+			Racer r = new Racer(p);
+			racers.add(r);
+		}
+		game = new Game(this, racers);
+		gameThread = game.runTaskTimer(this, 10L, 20L);
+	}
+	
+	public void gameStop() {
+		getGame().cleanup();
+		game = null;
+		gameThread = null;
+	}
+	
+	public Lobby getLobby() {
+		return lobby;
+	}
+	
+	public Game getGame() {
+		return game;
 	}
 	
 	public Location getLobbyLocation() {
@@ -95,8 +133,38 @@ public class PigRacing extends JavaPlugin{
 			double z = getSpawns().getConfig().getDouble("start.z");
 			float pitch = Float.parseFloat(getSpawns().getConfig().getString("start.pitch"));
 			float yaw = Float.parseFloat(getSpawns().getConfig().getString("start.yaw"));
+			
 			return new Location(w,x,y,z,yaw,pitch);
 		}
+		return null;
+	}
+	
+	public List<Checkpoint> getCheckpointsFromCFG(){
+		//The checkpoints file configuration
+		FileConfiguration c = getCheckpoints().getConfig();
+		List<Checkpoint> cps = new ArrayList<Checkpoint>();
+		
+		if(c.contains("checkPoints")) {
+			for(String position : c.getConfigurationSection("checkPoints").getKeys(false)) {
+				List<Location> cpLocals = new ArrayList<Location>();
+				for(String markerIndex : c.getConfigurationSection("checkPoints." + position).getKeys(false)) {
+					String path = "checkPoints." + position + "." + markerIndex + ".";
+					World w = Bukkit.getServer().getWorld(c.getString(path + "world"));
+					double x = c.getDouble(path + "x");
+					double y = c.getDouble(path + "y");
+					double z = c.getDouble(path + "z");
+					float pitch = Float.parseFloat(c.getString(path + "pitch"));
+					float yaw = Float.parseFloat(c.getString(path + "yaw"));
+					
+					Location cpLocal = new Location(w,x,y,z,yaw,pitch);
+					cpLocals.add(cpLocal);
+				}
+				cps.add(new Checkpoint(cpLocals, Integer.valueOf(position)));
+			}
+			
+			return cps;
+		}
+		
 		return null;
 	}
 	
@@ -106,5 +174,9 @@ public class PigRacing extends JavaPlugin{
 
 	public Checkpoints getCheckpoints() {
 		return checkpoints;
+	}
+	
+	public List<Checkpoint> getUnsavedCheckpoints() {
+		return unsavedCheckpoints;
 	}
 }

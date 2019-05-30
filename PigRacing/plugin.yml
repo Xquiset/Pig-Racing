@@ -12,3 +12,19 @@ commands:
       description: Sets the lobby spawn for the race
       usage: /setlobbyspawn
       aliases: sls
+   startrace:
+      description: Force starts the pig race
+      usage: /startrace
+      aliases: sr
+   endrace:
+      description: Forcefully ends the ongoing pig race and starts a new lobby
+      usage: /endrace
+      aliases: er
+   createcheckpoints:
+      description: Start the checkpoint creation process with this item
+      usage: /createcheckpoints
+      aliases: cc
+   savecp:
+      description: Save a checkpoint at the given position
+      usage: /savecp [position]
+      aliases: scp

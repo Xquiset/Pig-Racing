@@ -1,8 +1,5 @@
 package com.samleighton.xquiset.PigRacing.Threads;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -10,7 +7,6 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import com.samleighton.xquiset.PigRacing.GameState;
 import com.samleighton.xquiset.PigRacing.PigRacing;
-import com.samleighton.xquiset.PigRacing.Objects.Game.Racer;
 import com.samleighton.xquiset.PigRacing.Objects.Scoreboards.GameBoard;
 import com.samleighton.xquiset.PigRacing.Utilities.ChatUtils;
 
@@ -22,11 +18,10 @@ public class Lobby extends BukkitRunnable{
 	private String boardDisplay = ChatColor.BOLD + "" +ChatColor.ITALIC + "Lobby";
 	private String time = ChatColor.BLUE + "Time:";
 	private String players = ChatColor.GREEN + "Players:";
-	private List<Racer> racers = new ArrayList<Racer>();
 	
-	public Lobby(PigRacing pl, int lobbyTime) {
+	public Lobby(PigRacing pl) {
 		this.plugin = pl;
-		this.timeLeft = lobbyTime;
+		this.timeLeft = pl.LOBBY_TIME;
 		
 		for(Player p : Bukkit.getOnlinePlayers()) {
 			if(plugin.getLobbyLocation() != null)
@@ -51,17 +46,11 @@ public class Lobby extends BukkitRunnable{
 			if(timeLeft == 0) {
 				if(canStart()) {
 					GameState.setState(GameState.RACING);
-				}else {
-					GameState.setState(GameState.IN_LOBBY);
 				}
 				
 				if(GameState.getState() == GameState.RACING) {
-					for(Player p : Bukkit.getOnlinePlayers()) {
-						Racer r = new Racer(p);
-						racers.add(r);
-					}
 					plugin.lobbyStop();
-					plugin.gameStart(racers);
+					plugin.gameStart();
 				}else{
 					ChatUtils.broadcastMessage("Not enough players to start, resetting countdown!");
 					restartTimer();
@@ -71,8 +60,7 @@ public class Lobby extends BukkitRunnable{
 	}
 	
 	public void restartTimer() {
-		plugin.lobbyStop();
-		plugin.lobbyStart();
+		timeLeft = plugin.LOBBY_TIME;
 	}
 	
 	public boolean canStart() {
