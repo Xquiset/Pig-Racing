@@ -20,8 +20,8 @@ public class PlayerQuitGame implements Listener{
 	public void onPlayerLeave(PlayerQuitEvent e) {
 		if(GameState.getState() == GameState.RACING) {
 			Game currentGame = pl.getGame();
-			if(currentGame.getRacersAsPlayers().contains(e.getPlayer())) {
-				currentGame.removePlayerFromGame(e.getPlayer());
+			if(currentGame.hasID(e.getPlayer().getUniqueId())) {
+				currentGame.removePlayerFromGame(e.getPlayer().getUniqueId());
 			}
 		}
 	}

@@ -1,26 +1,37 @@
 package com.samleighton.xquiset.PigRacing.Objects.Game;
 
+import java.util.UUID;
+
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 public class Racer {
 
-	private Player racer;
-	private int checkPointsTripped;
+	private UUID racer;
+	private int lastCpTripped;
 	
-	public Racer(Player player) {
-		this.racer = player;
-		this.checkPointsTripped = 0;
+	public Racer(UUID uuid) {
+		this.racer = uuid;
+		this.lastCpTripped = 0;
 	}
 	
-	public Player getRacer() {
+	public UUID getRacerID() {
 		return racer;
 	}
 	
-	public void setCheckpointsTripped(int checkPointsPlayerTripped){
-		this.checkPointsTripped = checkPointsPlayerTripped;
+	public Racer getRacer() {
+		return this;
 	}
 	
-	public int getCheckpointsTripped() {
-		return checkPointsTripped;
+	public Player getPlayer() {
+		return Bukkit.getServer().getPlayer(getRacerID());
+	}
+	
+	public void setLastCPTripped(int checkPointsPlayerTripped){
+		this.lastCpTripped = checkPointsPlayerTripped;
+	}
+	
+	public int getLastCPTripped() {
+		return lastCpTripped;
 	}
 }

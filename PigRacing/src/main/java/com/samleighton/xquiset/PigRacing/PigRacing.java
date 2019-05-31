@@ -6,7 +6,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
@@ -18,11 +17,11 @@ import com.samleighton.xquiset.PigRacing.Commands.Spawns.SetLobbySpawn;
 import com.samleighton.xquiset.PigRacing.Commands.Spawns.SetStartingPoint;
 import com.samleighton.xquiset.PigRacing.EventListeners.PlayerJoin;
 import com.samleighton.xquiset.PigRacing.EventListeners.GameSetup.CheckpointPlaceOrBreakEvent;
+import com.samleighton.xquiset.PigRacing.EventListeners.InGame.CheckpointTripped;
 import com.samleighton.xquiset.PigRacing.EventListeners.InGame.PlayerQuitGame;
 import com.samleighton.xquiset.PigRacing.Objects.Configurations.Checkpoints;
 import com.samleighton.xquiset.PigRacing.Objects.Configurations.SpawnPoints;
 import com.samleighton.xquiset.PigRacing.Objects.Game.Checkpoint;
-import com.samleighton.xquiset.PigRacing.Objects.Game.Racer;
 import com.samleighton.xquiset.PigRacing.Threads.Game;
 import com.samleighton.xquiset.PigRacing.Threads.Lobby;
 
@@ -31,7 +30,6 @@ public class PigRacing extends JavaPlugin{
 	private SpawnPoints spawns = new SpawnPoints(this);
 	private Checkpoints checkpoints = new Checkpoints(this);
 	private CheckpointPlaceOrBreakEvent cpCmdAndEvent = new CheckpointPlaceOrBreakEvent(this);
-	private List<Racer> racers = new ArrayList<Racer>();
 	private List<Checkpoint> unsavedCheckpoints = new ArrayList<Checkpoint>();
 	private PluginManager pm = getServer().getPluginManager();
 	private BukkitTask lobbyThread;
@@ -53,12 +51,8 @@ public class PigRacing extends JavaPlugin{
 	
 	@Override
 	public void onDisable() {
-		if(lobbyThread != null) {
-			lobbyStop();
-		}
-		
-		if(gameThread != null) {
-			gameThread.cancel();
+		if(GameState.getState() == GameState.RACING) {
+			gameStop();
 		}
 	}
 	
@@ -75,6 +69,7 @@ public class PigRacing extends JavaPlugin{
 		pm.registerEvents(new PlayerJoin(this), this);
 		pm.registerEvents(new PlayerQuitGame(this), this);
 		pm.registerEvents(cpCmdAndEvent, this);
+		pm.registerEvents(new CheckpointTripped(this), this);
 	}
 	
 	public void lobbyStart() {
@@ -89,16 +84,13 @@ public class PigRacing extends JavaPlugin{
 	}
 	
 	public void gameStart() {
-		for(Player p : Bukkit.getOnlinePlayers()) {
-			Racer r = new Racer(p);
-			racers.add(r);
-		}
-		game = new Game(this, racers);
+		game = new Game(this);
 		gameThread = game.runTaskTimer(this, 10L, 20L);
 	}
 	
 	public void gameStop() {
 		getGame().cleanup();
+		gameThread.cancel();
 		game = null;
 		gameThread = null;
 	}
@@ -142,9 +134,9 @@ public class PigRacing extends JavaPlugin{
 	public List<Checkpoint> getCheckpointsFromCFG(){
 		//The checkpoints file configuration
 		FileConfiguration c = getCheckpoints().getConfig();
-		List<Checkpoint> cps = new ArrayList<Checkpoint>();
 		
 		if(c.contains("checkPoints")) {
+			List<Checkpoint> cps = new ArrayList<Checkpoint>();
 			for(String position : c.getConfigurationSection("checkPoints").getKeys(false)) {
 				List<Location> cpLocals = new ArrayList<Location>();
 				for(String markerIndex : c.getConfigurationSection("checkPoints." + position).getKeys(false)) {

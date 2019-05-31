@@ -4,6 +4,7 @@ public enum GameState {
 	IN_LOBBY(true), RACING(false), FINISHED(false), RESETTING(false);
 	
 	private boolean joinable;
+	private static boolean winnerChosen = false;
 	
 	private static GameState currentState;
 	
@@ -13,6 +14,14 @@ public enum GameState {
 	
 	public boolean isJoinable() {
 		return this.joinable;
+	}
+	
+	public static boolean winnerChosen() {
+		return winnerChosen;
+	}
+	
+	public static void setWinnerChosen(boolean args) {
+		winnerChosen = args;
 	}
 	
 	public static void setState(GameState state) {
